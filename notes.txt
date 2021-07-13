@@ -1,0 +1,9 @@
+ML pipeline
+1. define the task
+2. get the dataset
+3. create ML model
+4. train your ML model
+5. Deploy your trained model
+6. test your deployed model (got back to step 2 if not good)
+
+Task: create a web app that lets you upload the images and the main ingredient in the dish
