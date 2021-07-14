@@ -6,4 +6,6 @@ ML pipeline
 5. Deploy your trained model
 6. test your deployed model (got back to step 2 if not good)
 
-Task: create a web app that lets you upload the images and the main ingredient in the dish
+Task: create a web app that lets you upload the images and detect the main ingredient in the dish
+
+using CNNs , transfer learning
