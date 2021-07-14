@@ -6,6 +6,11 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
+from google.cloud import storage
+
+# path_to_credentials = './credentials/oceanic-actor-319819-d7054738fb58.json' # without storage admin role
+path_to_credentials = './credentials/oceanic-actor-319819-3aed6d449912.json' #with storage admin role
+
 # 0 index corresponds to 0 that the names of the images start with
 food_classes = ['bread', 'dairy_product', 'dessert', 'egg', 'fried_food', 'meat', 'noodle_pasta',
                 'rice', 'seafood', 'soup', 'vegetable']
@@ -82,21 +87,27 @@ def get_images_sizes(path_to_data):
 
     return mean_width, mean_height, median_width, median_height
 
+# func to list different files in bucket
+def list_blobs(bucket_name):
 
+    storage_client = storage.Client.from_service_account_json(path_to_credentials)
 
+    blobs = storage_client.list_blobs(bucket_name)
+
+    return blobs
 
 
 if __name__ == '__main__':
     # switches to not rerun code
     split_data_switch = False
     visualize_data_switch = False
-    print_insights_switch = True
-
+    print_insights_switch = False
+    list_blobs_switch = True
 
     #importing the datasets
-    path_to_train_data = "C:/Users/cpere/OneDrive/Documents/Image Classifier/foodimages/food-11/training"
-    path_to_val_data = "C:/Users/cpere/OneDrive/Documents/Image Classifier/foodimages/food-11/validation"
-    path_to_eval_data = "C:/Users/cpere/OneDrive/Documents/Image Classifier/foodimages/food-11/evaluation"
+    path_to_train_data = "C:/Users/cpere/Downloads/food-dataset/food-11/training/"
+    path_to_val_data = "C:/Users/cpere/Downloads/food-dataset/food-11/validation/"
+    path_to_eval_data = "C:/Users/cpere/Downloads/food-dataset/food-11/evaluation/"
 
     # assign photos to respective newly created folders for each food class
     if split_data_switch:
@@ -117,3 +128,9 @@ if __name__ == '__main__':
         print(f"mean height = {mean_height}")
         print(f"median width = {median_width}")
         print(f"median width = {median_height}")
+
+    if list_blobs_switch:
+        blobs = list_blobs('food--data--bucket')
+
+        for blob in blobs:
+            print(blob.name)

@@ -9,3 +9,21 @@ ML pipeline
 Task: create a web app that lets you upload the images and detect the main ingredient in the dish
 
 using CNNs , transfer learning
+
+**********************
+to enter venv
+(venv\Scripts\activate.bat)
+**********************
+
+GOOGLE CLOUD STORAGE
+initially:
+                    read
+data on local disk -----> train on local machine
+
+using cloud:
+                     Download then read
+data on google bucket --------------> train on local machine         (need credentials to access bucket)
+
+or more optimally:
+                     Download then read
+data on google bucket --------------> train on google cloud AI-platform
