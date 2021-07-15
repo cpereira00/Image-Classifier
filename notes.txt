@@ -27,3 +27,9 @@ data on google bucket --------------> train on local machine         (need crede
 or more optimally:
                      Download then read
 data on google bucket --------------> train on google cloud AI-platform
+
+DOCKER
+- allows to group application and its dependencies inside a virtual setup called a docker image
+- allows to isolate this setup from you system
+- allows to run 1+ copies of application called docker containers
+

@@ -8,8 +8,8 @@ import numpy as np
 
 from google.cloud import storage
 
-# path_to_credentials = './credentials/oceanic-actor-319819-d7054738fb58.json' # without storage admin role
-path_to_credentials = './credentials/oceanic-actor-319819-3aed6d449912.json' #with storage admin role
+# path_to_credentials = './credentials/oceanic-actor-319819-112189b5e396.json' # without storage admin role
+path_to_credentials = './credentials/oceanic-actor-319819-3d90da4a0c39.json' #with storage admin role
 
 # 0 index corresponds to 0 that the names of the images start with
 food_classes = ['bread', 'dairy_product', 'dessert', 'egg', 'fried_food', 'meat', 'noodle_pasta',
@@ -96,15 +96,41 @@ def list_blobs(bucket_name):
 
     return blobs
 
+# func that allows to download data from bucket to local directory
+def download_data_to_local_directory(bucket_name, local_directory):
+    
+    storage_client = storage.Client.from_service_account_json(path_to_credentials)
+    blobs = storage_client.list_blobs(bucket_name)
+
+    # if local directory doesnt exist, make one
+    if not os.path.isdir(local_directory):
+        os.makedirs(local_directory)
+        
+    for blob in blobs:
+        
+        joined_path = os.path.join(local_directory, blob.name)
+        
+        # we have a blob of a folder not an image
+        if os.path.basename(joined_path) =='':
+            if not os.path.isdir(joined_path):
+                os.makedirs(joined_path)
+        else:
+            if not os.path.isfile(joined_path): # check if file doesnt exist
+                if not os.path.isdir(os.path.dirname(joined_path)): # check if folders exist in which this file exists
+                    os.makedirs(os.path.dirname(joined_path)) # create the folder
+
+                blob.download_to_filename(joined_path)
+        
 
 if __name__ == '__main__':
     # switches to not rerun code
     split_data_switch = False
     visualize_data_switch = False
     print_insights_switch = False
-    list_blobs_switch = True
+    list_blobs_switch = False
+    download_data_switch = True
 
-    #importing the datasets
+    #importing the datasets (no longer will use)
     path_to_train_data = "C:/Users/cpere/Downloads/food-dataset/food-11/training/"
     path_to_val_data = "C:/Users/cpere/Downloads/food-dataset/food-11/validation/"
     path_to_eval_data = "C:/Users/cpere/Downloads/food-dataset/food-11/evaluation/"
@@ -130,7 +156,12 @@ if __name__ == '__main__':
         print(f"median width = {median_height}")
 
     if list_blobs_switch:
-        blobs = list_blobs('food--data--bucket')
+        blobs = list_blobs('gcp-food-data-bucket')
 
         for blob in blobs:
             print(blob.name)
+
+    # note this creates a folder of the data locally, however this isnt a necessary step as we can
+    # leave it and access it on gcp
+    if download_data_switch:
+        download_data_to_local_directory("gcp-food-data-bucket", "./data")
