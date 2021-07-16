@@ -33,3 +33,18 @@ DOCKER
 - allows to isolate this setup from you system
 - allows to run 1+ copies of application called docker containers
 
+same thing will happen as before except now its in a docker container
+so I built a docker image and ran a docker container
+So once we have a docker image that can run the training for us, we only need to push it to
+the cloud and run the image.
+
+
+CLOUD COMPUTING (GOOGLE CLOUD PLATFORM)
+- Cloud computing is the on demand availability of computer system resources, especially data storage and computing power,
+w/o direct active management by the user.
+- like remote linux machines
+
+Ill be using google AI-platform
+- GCP service for AI tasks
+- has different approaches to training machine learning models (direct or through containers)
+- supports most ML frameworks

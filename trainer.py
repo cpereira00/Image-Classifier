@@ -8,6 +8,17 @@ import os
 from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 
+from DataHandler import download_data_to_local_directory
+
+from tensorflow.python.client import device_lib
+import argparse
+
+
+# helps see which hardware is available for training
+print("Tensorflow is running on the following devices: ")
+print(device_lib.list_local_devices())
+
+
 
 def build_model(nbr_classes):
 
@@ -155,10 +166,26 @@ def train(path_to_data, batch_size, epochs):
     print(my_confusion_matrix)
 
 if __name__ == "__main__":
+
+    # allow to pass arguments
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--bucket_name", type=str, help="Bucket name on google cloud storage", default= "gcp-food-data-bucket")
+    parser.add_argument("--batch_size", type=int, help="Batch size used by deep learning model", default=2)
+
+    args = parser.parse_args()
+    # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1
+
+
     # Can create a small subset folder of the dataset to test if its working properly, say 60,20,20 img split
     # recommended not to store data locally and instead store it in the cloud
     # training will be done locally however data will now be read from a bucket and download from the bucket
-    path_to_data = 'C:/Users/cpere/Downloads/food-dataset/food-11/'
-    train(path_to_data, 2, 1)
+    # path_to_data = 'C:/Users/cpere/Downloads/food-dataset/food-11/'
+    print("Downloading of data started ...")
+    download_data_to_local_directory(args.bucket_name, "./data")
+    print("Download finished.")
 
+    path_to_data = './data'
+    train(path_to_data, args.batch_size, 1)
 
+    # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1
