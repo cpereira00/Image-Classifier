@@ -13,10 +13,11 @@ from DataHandler import download_data_to_local_directory
 from tensorflow.python.client import device_lib
 import argparse
 
+import hypertune
 
 # helps see which hardware is available for training
-print("Tensorflow is running on the following devices: ")
-print(device_lib.list_local_devices())
+# print("Tensorflow is running on the following devices: ")
+# print(device_lib.list_local_devices())
 
 
 
@@ -107,7 +108,7 @@ def get_number_of_imgs_inside_folder(directory):
 
 
 # func to do the training
-def train(path_to_data, batch_size, epochs):
+def train(path_to_data, batch_size, epochs, learning_rate):
     path_train_data = os.path.join(path_to_data, 'training')
     path_val_data = os.path.join(path_to_data, 'validation')
     path_eval_data = os.path.join(path_to_data, 'evaluation')
@@ -131,7 +132,7 @@ def train(path_to_data, batch_size, epochs):
     # create model
     model = build_model(nbr_classes=len(classes_dict.keys()))
     # can use SDG
-    optimizer = Adam(lr=1e-5)
+    optimizer = Adam(lr=learning_rate) #1e-5
 
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
 
@@ -165,6 +166,16 @@ def train(path_to_data, batch_size, epochs):
     print("[INFO] Confusion matrix :")
     print(my_confusion_matrix)
 
+    # takes images and corresponding labels and coputes a score based on examples
+    print("Starting evaluation using model.evaluate_generator")
+    # scores returns loss at [0] and accuracy at [1]
+    scores = model.evaluate_generator(eval_generator)
+    print("Done evaluating!")
+    loss = scores[0]
+    print(f"loss for hypertune = {loss}")
+    hpt = hypertune.HyperTune()
+    hpt.report_hyperparameter_tuning_metric(hyperparameter_metric_tag='loss', metric_value=loss, global_step=epochs)
+
 if __name__ == "__main__":
 
     # allow to pass arguments
@@ -172,7 +183,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--bucket_name", type=str, help="Bucket name on google cloud storage", default= "gcp-food-data-bucket")
     parser.add_argument("--batch_size", type=int, help="Batch size used by deep learning model", default=2)
-
+    
+    parser.add_argument("--learning_rate", type=float, help="Learning rate used by deep learning model", default=1e-5)
+    
     args = parser.parse_args()
     # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1
 
@@ -186,6 +199,7 @@ if __name__ == "__main__":
     print("Download finished.")
 
     path_to_data = './data'
-    train(path_to_data, args.batch_size, 1)
+    # added learning rate
+    train(path_to_data, args.batch_size, 10, args.learning_rate)
 
     # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1

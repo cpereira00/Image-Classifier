@@ -48,3 +48,7 @@ Ill be using google AI-platform
 - GCP service for AI tasks
 - has different approaches to training machine learning models (direct or through containers)
 - supports most ML frameworks
+
+HYPERPARAMETER TUNING
+- some params are learned, others are tuned ie learning rate, # epochs, batch size
+
