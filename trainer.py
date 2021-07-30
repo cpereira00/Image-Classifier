@@ -16,6 +16,11 @@ import argparse
 import hypertune
 # keras can use during training to save the model during certain steps or stopping early
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+import shutil
+from datetime import datetime
+
+
+
 # helps see which hardware is available for training
 # print("Tensorflow is running on the following devices: ")
 # print(device_lib.list_local_devices())
@@ -109,7 +114,7 @@ def get_number_of_imgs_inside_folder(directory):
 
 
 # func to do the training
-def train(path_to_data, batch_size, epochs, learning_rate):
+def train(path_to_data, batch_size, epochs, learning_rate, models_bucket_name):
     path_train_data = os.path.join(path_to_data, 'training')
     path_val_data = os.path.join(path_to_data, 'validation')
     path_eval_data = os.path.join(path_to_data, 'evaluation')
@@ -145,7 +150,7 @@ def train(path_to_data, batch_size, epochs, learning_rate):
     if not os.path.isdir(path_to_save_model):
         os.makedirs(path_to_save_model)
 
-    # checkpoint saver
+    # checkpoint saver, only keeps best model one with highest training accuracy
     ckpt_saver = ModelCheckpoint(
         path_to_save_model,
         monitor="val_accuracy",
@@ -193,6 +198,16 @@ def train(path_to_data, batch_size, epochs, learning_rate):
     print("Done evaluating!")
     loss = scores[0]
     print(f"loss for hypertune = {loss}")
+
+    #create a zip folder that contains model and move it to bucket, creates a unique name
+    now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    zipped_folder_name = f'trained_model_{now}_loss_{loss}'
+    # specifically for when container is running on the cloud
+    shutil.make_archive(zipped_folder_name, 'zip', '/usr/src/app/tmp')
+
+    path_zipped_folder = '/usr/src/app/' + zipped_folder_name + '.zip'
+    upload_data_to_bucket(models_bucket_name, path_zipped_folder, zipped_folder_name)
+
     hpt = hypertune.HyperTune()
     hpt.report_hyperparameter_tuning_metric(hyperparameter_metric_tag='loss', metric_value=loss, global_step=epochs)
 
@@ -204,6 +219,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--bucket_name", type=str, help="Bucket name on google cloud storage", default= "gcp-food-data-bucket")
+    parser.add_argument("--models_bucket_name", type=str, help="Bucket name on google cloud storage for saving trained models",
+                        default="")
     parser.add_argument("--batch_size", type=int, help="Batch size used by deep learning model", default=2)
     
     parser.add_argument("--learning_rate", type=float, help="Learning rate used by deep learning model", default=1e-5)
@@ -222,6 +239,6 @@ if __name__ == "__main__":
 
     path_to_data = './data'
     # added learning rate
-    train(path_to_data, args.batch_size, 10, args.learning_rate)
+    train(path_to_data, args.batch_size, 10, args.learning_rate, args.models_bucket_name)
 
     # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1
