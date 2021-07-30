@@ -8,13 +8,14 @@ import os
 from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 
-from DataHandler import download_data_to_local_directory
+from DataHandler import download_data_to_local_directory, upload_data_to_bucket
 
 from tensorflow.python.client import device_lib
 import argparse
 
 import hypertune
-
+# keras can use during training to save the model during certain steps or stopping early
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 # helps see which hardware is available for training
 # print("Tensorflow is running on the following devices: ")
 # print(device_lib.list_local_devices())
@@ -136,12 +137,31 @@ def train(path_to_data, batch_size, epochs, learning_rate):
 
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
 
+    # early stop if after 5 epochs validation loss is the same
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+
+    # once training stops, it kills the container and all resources are deleted included saved model
+    path_to_save_model = './tmp'
+    if not os.path.isdir(path_to_save_model):
+        os.makedirs(path_to_save_model)
+
+    # checkpoint saver
+    ckpt_saver = ModelCheckpoint(
+        path_to_save_model,
+        monitor="val_accuracy",
+        mode='max',
+        save_best_only=True,
+        save_freq='epoch',
+        verbose=1
+    )
+
     model.fit_generator(
         train_generator,
         steps_per_epoch=total_train_imgs // batch_size,
         validation_data=val_generator,
         validation_steps=total_val_imgs // batch_size,
-        epochs=epochs
+        epochs=epochs,
+        callbacks=[early_stopping, ckpt_saver]
     )
 
     # prediction evaluation
@@ -175,6 +195,8 @@ def train(path_to_data, batch_size, epochs, learning_rate):
     print(f"loss for hypertune = {loss}")
     hpt = hypertune.HyperTune()
     hpt.report_hyperparameter_tuning_metric(hyperparameter_metric_tag='loss', metric_value=loss, global_step=epochs)
+
+
 
 if __name__ == "__main__":
 
