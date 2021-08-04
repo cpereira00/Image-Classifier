@@ -143,7 +143,7 @@ def train(path_to_data, batch_size, epochs, learning_rate, models_bucket_name):
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
 
     # early stop if after 5 epochs validation loss is the same
-    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
 
     # once training stops, it kills the container and all resources are deleted included saved model
     path_to_save_model = './tmp'
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--bucket_name", type=str, help="Bucket name on google cloud storage", default= "gcp-food-data-bucket")
     parser.add_argument("--models_bucket_name", type=str, help="Bucket name on google cloud storage for saving trained models",
-                        default="")
+                        default="trained_model_food_classification")
     parser.add_argument("--batch_size", type=int, help="Batch size used by deep learning model", default=2)
     
     parser.add_argument("--learning_rate", type=float, help="Learning rate used by deep learning model", default=1e-5)
@@ -239,6 +239,6 @@ if __name__ == "__main__":
 
     path_to_data = './data'
     # added learning rate
-    train(path_to_data, args.batch_size, 10, args.learning_rate, args.models_bucket_name)
+    train(path_to_data, args.batch_size, 20, args.learning_rate, args.models_bucket_name)
 
     # python trainer.py --bucket_name "gcp-food-data-bucket" --batch_size 1
