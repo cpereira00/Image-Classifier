@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Running Prediction</title>
+
+</head>
+<body>
+    <h4>Running prediction page</h4>
+
+    <form action="" method="POST" enctype="multipart/form-data">
+
+        <div>
+            <img src="{{ url_for('static', filename=value) }}" alt="">
+        </div>
+
+        <input type="submit" value="predict">
+
+    </form>
+</body>
+</html>

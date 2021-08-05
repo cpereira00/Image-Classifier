@@ -38,7 +38,7 @@ def build_model(nbr_classes):
     head_model = base_model.output
     # include custom layers
     head_model = Flatten()(head_model)
-    head_model = Dense(512)(head_model)
+    head_model = Dense(512, activation="relu")(head_model)
     head_model = Dropout(0.5)(head_model) # can change parameters for improvement of model learning
     head_model = Dense(nbr_classes, activation="softmax")(head_model)
 
