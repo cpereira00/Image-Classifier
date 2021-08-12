@@ -17,7 +17,7 @@ app.config["IMAGE_UPLOADS"] = './static'
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG"]
 
 # loading prediction model I created
-# food_prediction_model = tf.keras.models.load_model('./deeplearning_model')
+food_prediction_model = tf.keras.models.load_model('./deeplearning_model')
 
 # func that makes sure file name is accepted and allowed
 def allowed_image(filename):
@@ -71,12 +71,31 @@ def upload_image():
 def showing_image(image_name):
 
     if request.method == "POST":
+
+        image_path = os.path.join(app.config["IMAGE_UPLOADS"], image_name)
+        # image preprocessing
+        image = cv2.imread(image_path)  # BGR
+        img = image.copy()
+        image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, (229, 229))
+        image = image.astype("float32")
+        image = image / 255.0
+        np_image = np.expand_dims(image, axis=0)  # (229,229,3) --> (1,229,229,3) INPUT TO NN
+
+        # predictions
+        predictions = food_prediction_model(np_image)
+
+        # return the highest prob of the predictions therefore the "right" prediction
+        predicted_class_idx = np.argmax(predictions)  # [0.1, 0.5, 0.3] --> 1
+        probability = np.max(predictions)
+        predicted_class = food_classes[predicted_class_idx]
         
-        pass
-    
+        return render_template("prediction_result.html", image_name=image_name, predicted_class=predicted_class, probability=probability)
+
     return render_template("showing_image.html", value=image_name)
 
 
 if __name__ == '__main__':
     # host 0.0.0.0 PORT 8080
     app.run(debug=True, host='127.0.0.1', port=int(os.environ.get('PORT', 5000)))
+

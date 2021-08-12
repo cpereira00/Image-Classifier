@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Prediction Result</title>
+
+</head>
+<body>
+    <h4>Prediction result</h4>
+
+    <div>
+        <img src="{{ url_for('static', filename=image_name)}}" alt="">
+    </div>
+    <div>
+        Predicted Class is : "{{ predicted_class }}" with probability {{ probability }}
+    </div>
+</body>
+</html>
