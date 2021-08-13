@@ -8,13 +8,13 @@
 
 </head>
 <body>
-    <h4>Prediction result</h4>
+    <h4>Prediction Result</h4>
 
     <div>
         <img src="{{ url_for('static', filename=image_name)}}" alt="">
     </div>
     <div>
-        Predicted Class is : "{{ predicted_class }}" with probability {{ probability }}
+        Predicted Class is : "{{ predicted_class }}" with a probability of : {{ probability }}
     </div>
 </body>
 </html>

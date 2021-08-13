@@ -5,11 +5,11 @@ import random
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
-
+from decouple import config
 from google.cloud import storage
 
 # path_to_credentials = '' # without storage admin role
-path_to_credentials = './credentials/oceanic-actor-319819-e2d6a4748c53.json' #with storage admin role
+path_to_credentials = config('PATH_TO_CRED') #with storage admin role
 # oceanic-actor-319819-a9b6bb1f2bc0.json owner role only
 
 # 0 index corresponds to 0 that the names of the images start with
