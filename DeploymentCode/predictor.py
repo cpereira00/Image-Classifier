@@ -97,5 +97,7 @@ def showing_image(image_name):
 
 if __name__ == '__main__':
     # host 0.0.0.0 PORT 8080
-    app.run(debug=True, host='127.0.0.1', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    # need to create a production server, using waitress or heroku maybe?
 
+    # https://foodpredictorapp-srj7uwv6qq-uc.a.run.app/
